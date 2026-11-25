@@ -120,3 +120,34 @@ dialog{border-radius:14px}dialog[open]{animation:dialogCinema .4s cubic-bezier(.
 /* v10 — dine-in menu, no ordering or shopping-cart affordances. */
 .group-grid .dish .dish-actions{display:block;min-height:0;margin-top:5px;padding:0;border:0}.group-grid .dish .dish-price{display:block;text-align:start;line-height:1.45;margin:0}.group-grid .dish-body{padding:9px 0 0}.group-grid .dish-title.detail{min-height:0}.toast{bottom:calc(18px + env(safe-area-inset-bottom))}.footer{padding-bottom:26px}.pair-foot{justify-content:start}.pair-foot strong{font-weight:500}.menu-note{margin-top:26px}.group-grid .dish .favorite{background:#12110e55}.group-grid .dish .favorite span{font-size:20px}.lite .group-grid .dish .dish-price{text-align:start}.dialog-inner .btn.full{margin-top:13px}
 @media(max-width:680px){.group-grid .dish .dish-actions{min-height:0;margin-top:4px}.group-grid .dish-body{padding:8px 0 0}.group-grid .dish .dish-price{font-size:14px}.group-grid{row-gap:23px}.menu-groups{gap:31px}}
+
+/* v11 — editorial item detail, full-resolution source photo, no checkout. */
+#item-dialog{width:min(640px,calc(100% - 36px));max-height:88dvh;padding:0;border:1px solid #d2b07d30;background:#151310;color:#f5ecdf;border-radius:17px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+#item-dialog .dish-detail{position:relative}
+#item-dialog .detail-top{height:60px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px 19px;border-bottom:1px solid #ffffff10;background:#151310f7;position:sticky;top:0;z-index:4;backdrop-filter:blur(15px)}
+#item-dialog .detail-back{display:flex;align-items:center;gap:8px;border:0;background:none;color:#e0c49a;font-size:13px;min-height:44px;padding:4px 0}
+#item-dialog .detail-back svg{width:19px;height:19px} [dir=rtl] #item-dialog .detail-back svg{transform:scaleX(-1)}
+#item-dialog .detail-brand{font:500 23px/1 'Cormorant Garamond',Georgia,serif;letter-spacing:.14em;color:#d2b17e;direction:ltr}
+#item-dialog .close{width:41px;height:41px;min-height:41px;border:1px solid #ffffff14;background:#242019;color:#eddbc0;font-size:24px}
+#item-dialog .detail-photo{position:relative;margin:0;width:100%;aspect-ratio:1.24;max-height:49dvh;border-radius:0;background:#0d0c0b;overflow:hidden;isolation:isolate}
+#item-dialog .detail-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transform:scale(1.02);transition:opacity .5s var(--ease),transform .9s var(--ease)}
+#item-dialog .detail-photo.photo-ready img{opacity:1;transform:scale(1)}
+#item-dialog .detail-image-loading{position:absolute;inset:0;background:linear-gradient(105deg,#181511 30%,#2e251a 50%,#181511 70%);background-size:200% 100%;animation:detailShimmer 1.5s linear infinite;pointer-events:none;z-index:-1}
+#item-dialog .photo-ready .detail-image-loading{display:none}
+#item-dialog .detail-missing{font-size:12px;margin:0;padding:17px 24px;color:#a99a86;background:#1a1713}
+#item-dialog .detail-content{padding:23px 27px 30px;animation:detailTextIn .5s .08s var(--ease) both}
+#item-dialog .detail-category{font-size:11px;color:#b99b6f;letter-spacing:.09em;margin-bottom:9px}
+#item-dialog #detail-title{font:500 clamp(31px,5.5vw,44px)/1.2 'Cormorant Garamond',Georgia,serif;color:#f6ecde;letter-spacing:0;margin:0;overflow-wrap:anywhere}
+[dir=rtl] #item-dialog #detail-title{font:500 clamp(31px,6vw,42px)/1.35 'Noto Naskh Arabic',Tahoma,serif}
+#item-dialog .detail-subtitle{font-size:13px;line-height:1.5;color:#aa9b87;margin:6px 0 14px;text-align:start;direction:inherit}
+#item-dialog .detail-price{font:500 23px/1.5 'DM Sans','IBM Plex Sans Arabic',Tahoma,sans-serif;color:#dcb67e;direction:ltr;text-align:left}
+[dir=rtl] #item-dialog .detail-price{text-align:right}
+#item-dialog .detail-divider{height:1px;background:#ffffff17;margin:19px 0}
+#item-dialog #detail-desc{font-size:16px;line-height:1.85;color:#dbd0bf;margin:0 0 23px}
+#item-dialog .detail-allergy{border-top:1px solid #ffffff16;padding-top:14px;color:#bba689;font-size:12px}
+#item-dialog .detail-allergy summary{cursor:pointer;padding:5px 0;min-height:35px}
+#item-dialog .detail-allergy p{font-size:12px;line-height:1.8;color:#a99a86;margin:8px 0 0}
+@keyframes detailTextIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes detailShimmer{to{background-position:-200% 0}}
+@media(max-width:680px){#item-dialog{position:fixed;inset:auto 0 0;width:100%;max-width:100%;max-height:93dvh;margin:0;border:0;border-top:1px solid #d2b07d35;border-radius:18px 18px 0 0;padding-bottom:env(safe-area-inset-bottom)}#item-dialog .detail-top{height:54px;padding:7px 16px}#item-dialog .detail-photo{aspect-ratio:1.12;max-height:48dvh}#item-dialog .detail-content{padding:20px 22px 26px}#item-dialog .detail-price{font-size:21px}#item-dialog #detail-desc{font-size:15px}#item-dialog .detail-brand{font-size:21px}#item-dialog .detail-divider{margin:16px 0}}
+@media(prefers-reduced-motion:reduce){#item-dialog .detail-content,#item-dialog .detail-image-loading{animation:none!important}#item-dialog .detail-photo img{transition:none!important}}
