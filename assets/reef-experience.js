@@ -3,41 +3,39 @@ const ITEMS=[["coffee","لاتيه كافيه","Caffè latte",5500,"قهوة و�
 'use strict';
 const $=id=>document.getElementById(id),root=document.documentElement;
 const cats={all:['الكل','All'],breakfast:['الفطور','Breakfast'],coffee:['قهوة ساخنة','Coffee'],cold:['مشروبات باردة','Cold drinks'],food:['الأطباق الرئيسية','Mains'],dessert:['الحلويات','Desserts']};
-let lang='ar',favsOnly=false,favorites=[],lite=false,lastFocus=null,toastTimer;
+let lang='ar',lite=false,lastFocus=null,toastTimer;
 function load(k,f){try{return JSON.parse(localStorage.getItem('reef-v4-'+k))??f}catch(e){return f}}
 function save(k,v){try{localStorage.setItem('reef-v4-'+k,JSON.stringify(v))}catch(e){}}
-favorites=load('favorites',[]);if(!Array.isArray(favorites))favorites=[];favorites=favorites.filter(i=>Number.isInteger(i)&&ITEMS[i]);lite=load('lite',false)===true;lang=load('lang','ar')==='en'?'en':'ar';
+lite=load('lite',false)===true;lang=load('lang','ar')==='en'?'en':'ar';
 const tr=(a,b)=>lang==='ar'?a:b, name=i=>ITEMS[i][lang==='ar'?1:2], descr=i=>ITEMS[i][lang==='ar'?4:5],money=n=>Number(n).toLocaleString('en-US')+' '+tr('د.ع','IQD'),catName=k=>cats[k][lang==='ar'?0:1];
 const normalize=s=>String(s).toLowerCase().normalize('NFKD').replace(/[\u064b-\u065f\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه');
-function translate(){root.lang=lang;root.dir=lang==='ar'?'rtl':'ltr';document.querySelectorAll('[data-ar][data-en]').forEach(e=>{e.textContent=e.dataset[lang]});document.querySelectorAll('[data-ph-ar]').forEach(e=>e.placeholder=e.dataset['ph'+(lang==='ar'?'Ar':'En')]);$('language').textContent=tr('EN','عربي');$('language').setAttribute('aria-label',tr('English','العربية'));$('lite').setAttribute('aria-pressed',String(lite));$('lite').querySelector('span').textContent=lite?tr('عرض الصور','Show photos'):tr('وضع خفيف','Lite mode');$('favfilter').setAttribute('aria-pressed',String(favsOnly));}
+function translate(){root.lang=lang;root.dir=lang==='ar'?'rtl':'ltr';document.querySelectorAll('[data-ar][data-en]').forEach(e=>{e.textContent=e.dataset[lang]});document.querySelectorAll('[data-ph-ar]').forEach(e=>e.placeholder=e.dataset['ph'+(lang==='ar'?'Ar':'En')]);$('language').textContent=tr('EN','عربي');$('language').setAttribute('aria-label',tr('English','العربية'));$('lite').setAttribute('aria-pressed',String(lite));$('lite').querySelector('span').textContent=lite?tr('عرض الصور','Show photos'):tr('وضع خفيف','Lite mode');}
 function notice(a,b){const e=$('toast');e.textContent=tr(a,b);e.classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>e.classList.remove('visible'),1900)}
 function setLite(){root.classList.toggle('lite',lite);save('lite',lite);document.querySelectorAll('img[data-image]').forEach(img=>{if(!lite&&!img.getAttribute('src')){img.classList.remove('failed');img.closest('.photo')?.classList.remove('no-photo');img.src=img.dataset.image;}else if(lite)img.removeAttribute('src')});translate()}
 document.addEventListener('error',e=>{if(e.target.tagName==='IMG'&&e.target.dataset.image&&!lite){e.target.classList.add('failed');e.target.closest('.photo')?.classList.add('no-photo')}},true);
 const sectionOrder=['breakfast','food','coffee','cold','dessert'];
 const groupEls=sectionOrder.map(k=>$('group-'+k));
 function render(){const q=normalize($('search').value.trim()),budget=Number($('budget').value)||Infinity,sort=$('sort').value;let count=0;
-const filtered=!!q||Number.isFinite(budget)||favsOnly||sort!=='featured';
+const filtered=!!q||Number.isFinite(budget)||sort!=='featured';
 document.body.classList.toggle('menu-filtered',filtered);
 for(const group of groupEls){const key=group.dataset.group,grid=group.querySelector('.group-grid');let indices=ITEMS.map((x,i)=>i).filter(i=>ITEMS[i][0]===key);
 if(sort==='low')indices.sort((a,b)=>ITEMS[a][3]-ITEMS[b][3]);if(sort==='high')indices.sort((a,b)=>ITEMS[b][3]-ITEMS[a][3]);
 const current=Array.from(grid.children).map(el=>Number(el.dataset.i));if(current.join(',')!==indices.join(','))indices.forEach(i=>grid.appendChild($('dish-'+i)));
-let n=0;for(const i of indices){const x=ITEMS[i],el=$('dish-'+i),visible=(!favsOnly||favorites.includes(i))&&x[3]<=budget&&(!q||normalize(x.slice(1,6).join(' ')+' '+cats[x[0]].join(' ')).includes(q));el.hidden=!visible;if(visible)n++;
-el.querySelector('.dish-title').textContent=name(i);el.querySelector('.dish-desc').textContent=descr(i);el.querySelector('.dish-price').textContent=money(x[3]);el.querySelector('.dish-cat').textContent=catName(x[0]);const f=el.querySelector('.favorite');f.setAttribute('aria-pressed',String(favorites.includes(i)));f.setAttribute('aria-label',tr('المفضلة: ','Favorite: ')+name(i));f.querySelector('span').textContent=favorites.includes(i)?'♥':'♡';el.querySelector('.detail').setAttribute('aria-label',tr('تفاصيل ','Details: ')+name(i));}
+let n=0;for(const i of indices){const x=ITEMS[i],el=$('dish-'+i),visible=x[3]<=budget&&(!q||normalize(x.slice(1,6).join(' ')+' '+cats[x[0]].join(' ')).includes(q));el.hidden=!visible;if(visible)n++;
+el.querySelector('.dish-title').textContent=name(i);el.querySelector('.dish-desc').textContent=descr(i);el.querySelector('.dish-price').textContent=money(x[3]);el.querySelector('.dish-cat').textContent=catName(x[0]);el.querySelector('.detail').setAttribute('aria-label',tr('تفاصيل ','Details: ')+name(i));}
 group.hidden=n===0;count+=n;const b=document.querySelector('[data-category="'+key+'"]');b.disabled=n===0;b.setAttribute('aria-disabled',String(n===0));if(n===0)b.setAttribute('aria-pressed','false');}
-$('count').textContent=count+' '+tr('صنف','items');$('empty').hidden=count!==0;$('favfilter').setAttribute('aria-pressed',String(favsOnly));document.dispatchEvent(new CustomEvent('reef:layout'));}
-function fav(i){if(favorites.includes(i))favorites=favorites.filter(x=>x!==i);else favorites.push(i);save('favorites',favorites);render();notice('تم تحديث المفضلة','Favorites updated')}
+$('count').textContent=count+' '+tr('صنف','items');$('empty').hidden=count!==0;document.dispatchEvent(new CustomEvent('reef:layout'));}
 function openDialog(d){lastFocus=document.activeElement;if(d.showModal)d.showModal();else d.setAttribute('open','');document.body.classList.add('modal-open')}
 function closeDialog(d){if(d.close)d.close();else{d.removeAttribute('open');document.body.classList.remove('modal-open');lastFocus?.focus({preventScroll:true})}}
 document.querySelectorAll('dialog').forEach(d=>{d.addEventListener('close',()=>{document.body.classList.remove('modal-open');lastFocus?.focus({preventScroll:true})});d.addEventListener('click',e=>{if(e.target===d)closeDialog(d)})});document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeDialog(b.closest('dialog'))));
 function details(i){const x=ITEMS[i];if(!x)return;const p=$('detail-photo'),im=$('detail-image'),missing=$('detail-missing'),d=$('item-dialog');
 im.onload=null;im.onerror=null;im.removeAttribute('src');p.classList.remove('photo-ready');p.hidden=lite||!x[6];missing.hidden=lite||!!x[6];if(!p.hidden){im.alt=name(i);im.onload=()=>p.classList.add('photo-ready');im.onerror=()=>{p.hidden=true;missing.hidden=false};im.src='https://app.food.baly.iq/content/'+x[6];if(im.complete&&im.naturalWidth>0)p.classList.add('photo-ready');}
 $('detail-category').textContent=catName(x[0]);$('detail-title').textContent=name(i);$('detail-sub').textContent=x[lang==='ar'?2:1];$('detail-sub').dir=lang==='ar'?'ltr':'rtl';$('detail-desc').textContent=descr(i);$('detail-price').textContent=money(x[3]);d.querySelector('.detail-allergy').open=false;openDialog(d);d.scrollTop=0;}
-$('grid').addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b){const photo=e.target.closest('.photo');if(photo){const card=photo.closest('.dish');card.querySelector('.detail').focus({preventScroll:true});details(Number(card.dataset.i))}return}const i=Number(b.closest('.dish').dataset.i);if(b.dataset.action==='fav')fav(i);else details(i)});
+$('grid').addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b){const card=e.target.closest('.dish');if(card){card.querySelector('.detail').focus({preventScroll:true});details(Number(card.dataset.i))}return}const i=Number(b.closest('.dish').dataset.i);details(i)});
 for(const id of ['search','budget','sort'])$(id).addEventListener(id==='search'?'input':'change',()=>{render();document.dispatchEvent(new CustomEvent('reef:filters'))});
-$('favfilter').addEventListener('click',()=>{favsOnly=!favsOnly;render();document.dispatchEvent(new CustomEvent('reef:filters'))});$('reset').addEventListener('click',()=>{favsOnly=false;$('search').value='';$('budget').value='';$('sort').value='featured';render();document.dispatchEvent(new CustomEvent('reef:filters'))});
+$('reset').addEventListener('click',()=>{$('search').value='';$('budget').value='';$('sort').value='featured';render();document.dispatchEvent(new CustomEvent('reef:filters'))});
 $('language').addEventListener('click',()=>{lang=lang==='ar'?'en':'ar';save('lang',lang);translate();render()});
 $('lite').addEventListener('click',()=>{lite=!lite;setLite();notice(lite?'تم تفعيل العرض الخفيف':'تم تفعيل الصور',lite?'Lite mode on':'Photos enabled')});
-$('print-menu').addEventListener('click',()=>window.print());
 let table=new URLSearchParams(location.search).get('table');if(table&&/^[0-9]{1,3}$/.test(table)){$('table-value').textContent=table;$('table-label').hidden=false}
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&'IntersectionObserver' in window){const o=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('entered');o.unobserve(e.target)}}),{threshold:.1});document.querySelectorAll('.reveal').forEach(e=>o.observe(e))}
 setLite();translate();render();
