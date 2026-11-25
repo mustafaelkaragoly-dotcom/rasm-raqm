@@ -1,0 +1,1 @@
+document.addEventListener('error',function(e){var t=e.target;if(!t||t.tagName!=='IMG')return;switch(t.dataset.imageFallback){case 'hide':t.style.display='none';break;case 'invisible':t.style.visibility='hidden';break;case 'illustrated':t.hidden=true;t.parentNode.classList.add('illustrated');break;}},true);
