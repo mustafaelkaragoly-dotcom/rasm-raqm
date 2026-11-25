@@ -1,2 +1,7 @@
 [build]
   publish = "."
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "script-src 'self'; object-src 'none'; base-uri 'self'"
